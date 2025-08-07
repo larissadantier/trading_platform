@@ -1,55 +1,30 @@
-import express, { type Request, type Response } from 'express';
 import pg from 'pg-promise';
-import cors from 'cors';
 import {randomUUID} from 'node:crypto';
+import { validateName } from './validateName';
+import { validateEmail } from './validateEmail';
 import { validateCpf } from './validateCpf';
 import { validatePassword } from './validatePassword';
-import { validateEmail } from './validateEmail';
-import { validateName } from './validateName';
-
-const app = express(); 
-app.use(express.json());
-app.use(cors());
 
 const connection = pg()('postgres://postgres:123456@db:5432/app');
 
-app.post('/signup', async (req: Request, res: Response) => {
-  const account = req.body;
+export async function signup(account: any) {
   const accountId = randomUUID();
 
-  if (!validateName(account.name)) {
-    res.status(422).json({message: 'Invalid name'});
-    return;
-  }
-
-  if(!validateEmail(account.email)) { 
-    res.status(422).json({message: 'Invalid email'});
-    return;
-  }
-
-  if(!validateCpf(account.document)) { 
-    res.status(422).json({message: 'Invalid document'});
-    return;
-  }
-
-  if(!validatePassword(account.password)) {
-    res.status(422).json({ message: 'Invalid password'});
-    return;
-  }
+  if (!validateName(account.name)) throw new Error('Invalid name');
+  if (!validateEmail(account.email)) throw new Error('Invalid email');
+  if (!validateCpf(account.document)) throw new Error('Invalid document');
+  if (!validatePassword(account.password)) throw new Error('Invalid password');
   
   await connection.query(`
     INSERT INTO ccca.account (account_id, name, email, document, password) VALUES ($1, $2, $3, $4, $5)`, 
     [accountId, account.name, account.email, account.document, account.password]);
 
-  res.json({ accountId });
-});
+  return {
+    accountId
+  };
+}
 
-app.get("/accounts/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  const [account] = await connection.query(`SELECT * FROM ccca.account WHERE account_id = $1`, [id])
-
-  res.json(account);
-});
-
-app.listen(3000);
+export async function getAccountById(accountId: string) {
+  const [account] = await connection.query(`SELECT * FROM ccca.account WHERE account_id = $1`, [accountId]);
+  return account;
+}
