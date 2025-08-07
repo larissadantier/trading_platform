@@ -1,5 +1,6 @@
 import express, { type Request, type Response } from 'express';
 import pg from 'pg-promise';
+import cors from 'cors';
 import {randomUUID} from 'node:crypto';
 import { validateCpf } from './validateCpf';
 import { validatePassword } from './validatePassword';
@@ -8,6 +9,7 @@ import { validateName } from './validateName';
 
 const app = express(); 
 app.use(express.json());
+app.use(cors());
 
 const connection = pg()('postgres://postgres:123456@db:5432/app');
 
