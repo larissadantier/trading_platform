@@ -1,7 +1,5 @@
-import axios from "axios";
-
-axios.defaults.validateStatus = () => true;
-test('should be create a account', async () => {  
+import { getAccount, signup } from "../src/main";
+test('should be create an account', async () => {  
   const input = {
     name: "John Doe",
     email: "john@hotmail.com",
@@ -9,13 +7,10 @@ test('should be create a account', async () => {
     password: "asdQWE123"
   };
 
-  const response = await axios.post("http://localhost:3000/signup", input);
-  const output = response.data;
+  const outputSignup = await signup(input);
+  const outputAccount = await getAccount(outputSignup.accountId);
 
-  const responseAccount = await axios.get(`http://localhost:3000/accounts/${output.accountId}`);
-  const outputAccount = responseAccount.data;
-
-  expect(output.accountId).toBeDefined();
+  expect(outputSignup.accountId).toBeDefined();
   expect(outputAccount.name).toBe(input.name);
   expect(outputAccount.email).toBe(input.email);
   expect(outputAccount.document).toBe(input.document);
@@ -30,11 +25,7 @@ test('should be not create an account if the name is invalid', async () => {
     password: "asdQWE123"
   };
 
-  const responseSignup = await axios.post("http://localhost:3000/signup", input);
-  const outputSignup = responseSignup.data;
-
-  expect(responseSignup.status).toBe(422);
-  expect(outputSignup.message).toBe("Invalid name")
+  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid name"));
 });
 
 test('should be not create an account if the email is invalid', async () => {  
@@ -45,11 +36,7 @@ test('should be not create an account if the email is invalid', async () => {
     password: "asdQWE123"
   };
 
-  const responseSignup = await axios.post("http://localhost:3000/signup", input);
-  const outputSignup = responseSignup.data;
-
-  expect(responseSignup.status).toBe(422);
-  expect(outputSignup.message).toBe("Invalid email")
+  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid email"));
 });
 
 test('should be not create an account if the document is invalid', async () => {  
@@ -60,11 +47,7 @@ test('should be not create an account if the document is invalid', async () => {
     password: "asdQWE123"
   };
 
-  const responseSignup = await axios.post("http://localhost:3000/signup", input);
-  const outputSignup = responseSignup.data;
-
-  expect(responseSignup.status).toBe(422);
-  expect(outputSignup.message).toBe("Invalid document")
+  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid document"));
 });
 
 test('should be not create an account if the password is invalid', async () => {  
@@ -75,9 +58,5 @@ test('should be not create an account if the password is invalid', async () => {
     password: "asdQWE"
   };
 
-  const responseSignup = await axios.post("http://localhost:3000/signup", input);
-  const outputSignup = responseSignup.data;
-
-  expect(responseSignup.status).toBe(422);
-  expect(outputSignup.message).toBe("Invalid password")
+  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid password"));
 });

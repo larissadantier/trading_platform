@@ -1,6 +1,6 @@
 import express, { type Request, type Response } from 'express';
 import cors from 'cors';
-import { getAccountById, signup } from './main';
+import { getAccount, signup } from './main';
 
 const app = express(); 
 app.use(express.json());
@@ -23,7 +23,7 @@ app.post('/signup', async (req: Request, res: Response) => {
 app.get("/accounts/:id", async (req: Request, res: Response) => {
   const { id } = req.params;
 
-  const output = await getAccountById(id);
+  const output = await getAccount(id);
   res.json(output);
 });
 

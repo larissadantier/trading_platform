@@ -1,30 +1,26 @@
-import pg from 'pg-promise';
 import {randomUUID} from 'node:crypto';
 import { validateName } from './validateName';
 import { validateEmail } from './validateEmail';
 import { validateCpf } from './validateCpf';
 import { validatePassword } from './validatePassword';
-
-const connection = pg()('postgres://postgres:123456@db:5432/app');
+import { getAccountById, saveAccount } from './data';
 
 export async function signup(account: any) {
-  const accountId = randomUUID();
+  account.accountId = randomUUID();
 
   if (!validateName(account.name)) throw new Error('Invalid name');
   if (!validateEmail(account.email)) throw new Error('Invalid email');
   if (!validateCpf(account.document)) throw new Error('Invalid document');
   if (!validatePassword(account.password)) throw new Error('Invalid password');
   
-  await connection.query(`
-    INSERT INTO ccca.account (account_id, name, email, document, password) VALUES ($1, $2, $3, $4, $5)`, 
-    [accountId, account.name, account.email, account.document, account.password]);
+  await saveAccount(account);
 
   return {
-    accountId
+    accountId: account.accountId
   };
 }
 
-export async function getAccountById(accountId: string) {
-  const [account] = await connection.query(`SELECT * FROM ccca.account WHERE account_id = $1`, [accountId]);
+export async function getAccount(accountId: string) {
+  const account = await getAccountById(accountId);
   return account;
 }
