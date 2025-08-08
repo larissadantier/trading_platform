@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { inject, ref } from 'vue';
-import { AccountGatewayMemory } from './AccountGateway';
 import type AccountGateway from './AccountGateway';
 
   const form = ref({
