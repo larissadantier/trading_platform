@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
-
 import { mount } from '@vue/test-utils'
+
+import { AccountGatewayMemory } from '@/AccountGateway';
+
 import App from '../App.vue'
 
 function sleep (time: number) {
@@ -11,17 +13,23 @@ function sleep (time: number) {
   });
 }
 
-
 describe('App.vue', () => {
   it('Should be create an account', async () => {
+    const accountGateway = new AccountGatewayMemory();
+    const wrapper = mount(App, {
+      global: { 
+        provide: { 
+          accountGateway,
+        }
+      }
+    });
+
     const input = {
       name: "John Doe",
       email: "john@hotmail.com",
       document: "87748248800",
       password: "asdQWE123"
     }
-
-    const wrapper = mount(App, {});
 
     await wrapper.get(".input-name").setValue(input.name);
     await wrapper.get(".input-email").setValue(input.email);
@@ -34,6 +42,15 @@ describe('App.vue', () => {
   })
 
   it('Should be not create an account if name is invalid', async () => {
+    const accountGateway = new AccountGatewayMemory();
+    const wrapper = mount(App, {
+      global: { 
+        provide: { 
+          accountGateway,
+        }
+      }
+    });
+
     const input = {
       name: "John",
       email: "john@hotmail.com",
@@ -41,7 +58,6 @@ describe('App.vue', () => {
       password: "asdQWE123"
     }
 
-    const wrapper = mount(App, {});
 
     await wrapper.get(".input-name").setValue(input.name);
     await wrapper.get(".input-email").setValue(input.email);
