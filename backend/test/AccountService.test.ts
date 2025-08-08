@@ -1,4 +1,13 @@
-import { getAccount, signup } from "../src/main";
+import { AccountDAODatabase, AccountDAOMemory } from "../src/AccountDAO";
+import AccountService from "../src/AccountService";
+
+let accountService: AccountService;
+
+beforeEach(() => { 
+  // const accountDAO = new AccountDAODatabase()
+  const accountDAO = new AccountDAOMemory();
+  accountService = new AccountService(accountDAO);
+})
 test('should be create an account', async () => {  
   const input = {
     name: "John Doe",
@@ -7,8 +16,8 @@ test('should be create an account', async () => {
     password: "asdQWE123"
   };
 
-  const outputSignup = await signup(input);
-  const outputAccount = await getAccount(outputSignup.accountId);
+  const outputSignup = await accountService.signup(input);
+  const outputAccount = await accountService.getAccount(outputSignup.accountId);
 
   expect(outputSignup.accountId).toBeDefined();
   expect(outputAccount.name).toBe(input.name);
@@ -25,7 +34,7 @@ test('should be not create an account if the name is invalid', async () => {
     password: "asdQWE123"
   };
 
-  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid name"));
+  await expect(() => accountService.signup(input)).rejects.toThrow(new Error("Invalid name"));
 });
 
 test('should be not create an account if the email is invalid', async () => {  
@@ -36,7 +45,7 @@ test('should be not create an account if the email is invalid', async () => {
     password: "asdQWE123"
   };
 
-  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid email"));
+  await expect(() => accountService.signup(input)).rejects.toThrow(new Error("Invalid email"));
 });
 
 test('should be not create an account if the document is invalid', async () => {  
@@ -47,7 +56,7 @@ test('should be not create an account if the document is invalid', async () => {
     password: "asdQWE123"
   };
 
-  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid document"));
+  await expect(() => accountService.signup(input)).rejects.toThrow(new Error("Invalid document"));
 });
 
 test('should be not create an account if the password is invalid', async () => {  
@@ -58,5 +67,5 @@ test('should be not create an account if the password is invalid', async () => {
     password: "asdQWE"
   };
 
-  await expect(() => signup(input)).rejects.toThrow(new Error("Invalid password"));
+  await expect(() => accountService.signup(input)).rejects.toThrow(new Error("Invalid password"));
 });

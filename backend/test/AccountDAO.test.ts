@@ -1,7 +1,9 @@
 import { randomUUID } from 'node:crypto';
-import { getAccountById, saveAccount } from '../src/data';
+import { AccountDAODatabase } from '../src/AccountDAO';
 
 test('should be persist an account', async () => {  
+  const accountDAO = new AccountDAODatabase();
+
   const account = {
     accountId: randomUUID(),
     name: "John Doe",
@@ -10,8 +12,8 @@ test('should be persist an account', async () => {
     password: "asdQWE123"
   };
 
-  await saveAccount(account);
-  const savedAccount = await getAccountById(account.accountId);
+  await accountDAO.save(account);
+  const savedAccount = await accountDAO.getById(account.accountId);
 
   expect(savedAccount.account_id).toBe(account.accountId);
   expect(savedAccount.name).toBe(account.name);
