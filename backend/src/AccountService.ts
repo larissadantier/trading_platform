@@ -38,7 +38,7 @@ export default class AccountService  {
   async deposit(accountAsset: any) { 
     const account = await this.accountDAO.getById(accountAsset.accountId);
     if(!account) throw new Error('Account not found');
-    await this.accountAssetDAO.deposit(accountAsset);
+    await this.accountAssetDAO.save(accountAsset);
   }
 
   async withdraw(accountAsset: any) {

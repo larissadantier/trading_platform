@@ -1,36 +1,28 @@
-import express, { type Request, type Response } from 'express';
-import cors from 'cors';
 import { AccountDAODatabase } from './AccountDAO';
 import { AccountAssetDAODatabase } from './AccountAssetDAO';
 import Registry from './Registry';
-import AccountService from './AccountService';
+import { ExpressAdapter } from './HttpServer';
+import { PgPromiseAdapter } from './DatabaseConnection';
+import AccountController from './AccountController';
+import Signup from './Signup';
+import GetAccount from './GetAccount';
+import Deposit from './Deposit';
 
-const app = express(); 
-app.use(express.json());
-app.use(cors());
+// Entrypoint
+async function main() {
+  const httpServer = new ExpressAdapter();
 
+Registry.getInstance().provide("databaseConnection", new PgPromiseAdapter());
 Registry.getInstance().provide("accountDAO", new AccountDAODatabase());
 Registry.getInstance().provide("accountAssetDAO", new AccountAssetDAODatabase());
-const accountService = new AccountService();
+Registry.getInstance().provide('httpServer', httpServer);
+Registry.getInstance().provide("signup", new Signup());
+Registry.getInstance().provide("getAccount", new GetAccount());
+Registry.getInstance().provide("deposit", new Deposit());
 
-app.post('/signup', async (req: Request, res: Response) => {
-  const account = req.body;
+new AccountController(); 
 
-  try {
-    const output = await accountService.signup(account);
-    res.json(output);
-  } catch (error: any) {
-    res.status(422).json({
-      message: error.message,
-    })
-  }
-});
+httpServer.listen(3000);
+}
 
-app.get("/accounts/:id", async (req: Request, res: Response) => {
-  const { id } = req.params;
-
-  const output = await accountService.getAccount(id);
-  res.json(output);
-});
-
-app.listen(3000);
+main();
