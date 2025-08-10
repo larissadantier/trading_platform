@@ -1,13 +1,19 @@
+import { randomUUID } from 'node:crypto';
 import sinon from "sinon";
+import { AccountAssetDAODatabase } from "../src/AccountAssetDAO";
 import { AccountDAODatabase, AccountDAOMemory } from "../src/AccountDAO";
 import AccountService from "../src/AccountService";
+import Registry from "../src/Registry";
 
 let accountService: AccountService;
 
 beforeEach(() => { 
-  const accountDAO = new AccountDAODatabase()
+  const accountDAO = new AccountDAODatabase();
+  const accountAssetDAO = new AccountAssetDAODatabase();
+  Registry.getInstance().provide("accountDAO", accountDAO);
+  Registry.getInstance().provide("accountAssetDAO", accountAssetDAO);
   // const accountDAO = new AccountDAOMemory();
-  accountService = new AccountService(accountDAO);
+  accountService = new AccountService();
 })
 test('should be create an account', async () => {  
   const input = {
@@ -122,7 +128,8 @@ test('should be create an account with spy', async () => {
 
 test('should be create an account with fake', async () => {  
   const accountDAO = new AccountDAOMemory();
-  accountService = new AccountService(accountDAO);
+  Registry.getInstance().provide("accountDAO", accountDAO);
+  accountService = new AccountService();
   const input = {
     name: "John Doe",
     email: "john@hotmail.com",
@@ -139,3 +146,91 @@ test('should be create an account with fake', async () => {
   expect(outputAccount.document).toBe(input.document);
   expect(outputAccount.password).toBe(input.password);
 });
+
+test('should be deposit in an account', async () => { 
+  const input = {
+    name: "John Doe",
+    email: "john@hotmail.com",
+    document: "87748248800",
+    password: "asdQWE123"
+  };
+
+  const outputSignup = await accountService.signup(input);
+
+  const inputDeposit = {
+    accountId: outputSignup.accountId,
+    assetId: "USD",
+    quantity: 1000,
+  }
+  await accountService.deposit(inputDeposit);
+  const outputAccount = await accountService.getAccount(outputSignup.accountId);
+  expect(outputAccount.balances[0].asset_id).toBe("USD");
+  expect(outputAccount.balances[0].quantity).toBe("1000");
+})
+
+test('should be not deposit in an account that not exists', async () => { 
+  const inputDeposit = {
+    accountId: randomUUID(),
+    assetId: "USD",
+    quantity: 1000,
+  }
+  
+  await expect(() => accountService.deposit(inputDeposit)).rejects.toThrow(new Error("Account not found"));
+})
+
+test('should be withdraw of an account', async () => { 
+  const input = {
+    name: "John Doe",
+    email: "john@hotmail.com",
+    document: "87748248800",
+    password: "asdQWE123"
+  };
+
+  const outputSignup = await accountService.signup(input);
+
+  const inputDeposit = {
+    accountId: outputSignup.accountId,
+    assetId: "USD",
+    quantity: 1000,
+  }
+  
+  await accountService.deposit(inputDeposit);
+
+  const inputWithdraw = {
+    accountId: outputSignup.accountId,
+    assetId: "USD",
+    quantity: 500,
+  }
+
+  await accountService.withdraw(inputWithdraw);
+  const outputAccount = await accountService.getAccount(outputSignup.accountId);
+  expect(outputAccount.balances[0].asset_id).toBe("USD");
+  expect(outputAccount.balances[0].quantity).toBe("500");
+})
+
+test.only('should be not withdraw if not has balance enough', async () => { 
+  const input = {
+    name: "John Doe",
+    email: "john@hotmail.com",
+    document: "87748248800",
+    password: "asdQWE123"
+  };
+
+  const outputSignup = await accountService.signup(input);
+
+  const inputDeposit = {
+    accountId: outputSignup.accountId,
+    assetId: "USD",
+    quantity: 500,
+  }
+  
+  await accountService.deposit(inputDeposit);
+
+  const inputWithdraw = {
+    accountId: outputSignup.accountId,
+    assetId: "USD",
+    quantity: 1000,
+  }
+
+  await expect(() => accountService.withdraw(inputWithdraw)).rejects.toThrow(new Error("Insuficient funds"));
+})

@@ -1,14 +1,17 @@
 import express, { type Request, type Response } from 'express';
 import cors from 'cors';
 import { AccountDAODatabase } from './AccountDAO';
+import { AccountAssetDAODatabase } from './AccountAssetDAO';
+import Registry from './Registry';
 import AccountService from './AccountService';
 
 const app = express(); 
 app.use(express.json());
 app.use(cors());
 
-const accountDAO = new AccountDAODatabase();
-const accountService = new AccountService(accountDAO);
+Registry.getInstance().provide("accountDAO", new AccountDAODatabase());
+Registry.getInstance().provide("accountAssetDAO", new AccountAssetDAODatabase());
+const accountService = new AccountService();
 
 app.post('/signup', async (req: Request, res: Response) => {
   const account = req.body;
