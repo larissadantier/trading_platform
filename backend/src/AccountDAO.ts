@@ -1,5 +1,4 @@
 import pg from 'pg-promise';
-
 export default interface AccountDAO {
   save(account: any): Promise<void>;
   getById (accountId: string): Promise<any>;
@@ -13,6 +12,7 @@ export class AccountDAODatabase implements AccountDAO {
       [account.accountId, account.name, account.email, account.document, account.password]);
     await connection.$pool.end();
   }
+
   async getById(accountId: string): Promise<any> {
     const connection = pg()('postgres://postgres:123456@db:5432/app');
     const [account] = await connection.query(`SELECT * FROM ccca.account WHERE account_id = $1`, [accountId]);
