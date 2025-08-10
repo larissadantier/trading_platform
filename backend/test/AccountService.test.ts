@@ -1,19 +1,22 @@
 import { randomUUID } from 'node:crypto';
 import sinon from "sinon";
+import DatabaseConnection, { PgPromiseAdapter } from '../src/DatabaseConnection';
 import { AccountAssetDAODatabase } from "../src/AccountAssetDAO";
 import { AccountDAODatabase, AccountDAOMemory } from "../src/AccountDAO";
 import AccountService from "../src/AccountService";
 import Registry from "../src/Registry";
 
+let connection: DatabaseConnection;
 let accountService: AccountService;
 
 beforeEach(() => { 
-  const accountDAO = new AccountDAODatabase();
-  const accountAssetDAO = new AccountAssetDAODatabase();
-  Registry.getInstance().provide("accountDAO", accountDAO);
-  Registry.getInstance().provide("accountAssetDAO", accountAssetDAO);
-  // const accountDAO = new AccountDAOMemory();
+  connection = new PgPromiseAdapter();
   accountService = new AccountService();
+  
+  Registry.getInstance().provide("databaseConnection", connection);
+  Registry.getInstance().provide("accountDAO", new AccountDAODatabase());
+  Registry.getInstance().provide("accountAssetDAO", new AccountAssetDAODatabase());
+  // const accountDAO = new AccountDAOMemory();
 })
 test('should be create an account', async () => {  
   const input = {
@@ -208,7 +211,7 @@ test('should be withdraw of an account', async () => {
   expect(outputAccount.balances[0].quantity).toBe("500");
 })
 
-test.only('should be not withdraw if not has balance enough', async () => { 
+test('should be not withdraw if not has balance enough', async () => { 
   const input = {
     name: "John Doe",
     email: "john@hotmail.com",
@@ -233,4 +236,8 @@ test.only('should be not withdraw if not has balance enough', async () => {
   }
 
   await expect(() => accountService.withdraw(inputWithdraw)).rejects.toThrow(new Error("Insuficient funds"));
+})
+
+afterEach(async () => { 
+  await connection.close()
 })

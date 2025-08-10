@@ -1,6 +1,13 @@
 import { randomUUID } from 'node:crypto';
 import { AccountDAODatabase } from '../src/AccountDAO';
+import { PgPromiseAdapter } from '../src/DatabaseConnection';
+import Registry from '../src/Registry';
 
+let connection = new PgPromiseAdapter();
+
+beforeEach(() => {
+  Registry.getInstance().provide('databaseConnection', connection);
+})
 test('should be persist an account', async () => {  
   const accountDAO = new AccountDAODatabase();
 
@@ -20,4 +27,8 @@ test('should be persist an account', async () => {
   expect(savedAccount.email).toBe(account.email);
   expect(savedAccount.document).toBe(account.document);
   expect(savedAccount.password).toBe(account.password);
+});
+
+afterEach(() => { 
+  connection.close();
 });
