@@ -1,10 +1,10 @@
 import { randomUUID } from 'node:crypto';
 import sinon from "sinon";
-import DatabaseConnection, { PgPromiseAdapter } from '../src/DatabaseConnection';
-import { AccountAssetDAODatabase } from "../src/AccountAssetDAO";
-import { AccountDAODatabase, AccountDAOMemory } from "../src/AccountDAO";
-import AccountService from "../src/AccountService";
-import Registry from "../src/Registry";
+import DatabaseConnection, { PgPromiseAdapter } from '../../src/infra/database/DatabaseConnection';
+import { AccountAssetDAODatabase } from "../../src/infra/dao/AccountAssetDAO";
+import { AccountDAODatabase, AccountDAOMemory } from "../../src/infra/dao/AccountDAO";
+import AccountService from "../../src/application/service/AccountService";
+import Registry from "../../src/infra/di/Registry";
 
 let connection: DatabaseConnection;
 let accountService: AccountService;

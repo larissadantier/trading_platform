@@ -1,4 +1,4 @@
-import { validatePassword } from "../src/validatePassword";
+import { validatePassword } from "../../src/domain/validatePassword";
 
 test.each(['asdQWE123'])('password should be valid', (password: string) => {
   const isValid = validatePassword(password);

@@ -1,8 +1,9 @@
-import { inject } from "./Registry";
-import DatabaseConnection from "./DatabaseConnection";
+import { inject } from "../di/Registry";
+import DatabaseConnection from "../database/DatabaseConnection";
 
 export default interface AccountDAO {
   save(account: any): Promise<void>;
+  update(account: any): Promise<void>;
   getById (accountId: string): Promise<any>;
 }
 // Interface Adapter
@@ -12,8 +13,16 @@ export class AccountDAODatabase implements AccountDAO {
 
   async save(account: any): Promise<void> {
     await this.connection.query(`
-      INSERT INTO ccca.account (account_id, name, email, document, password) VALUES ($1, $2, $3, $4, $5)`, 
+      INSERT INTO ccca.account (account_id, name, email, document, password) 
+      VALUES ($1, $2, $3, $4, $5)`, 
       [account.accountId, account.name, account.email, account.document, account.password]);
+  }
+
+  async update(account: any): Promise<void> {
+    await this.connection.query(`
+      UPDATE ccca.account 
+      SET name = $1, email = $2, document = $3, password = $4 WHERE account_id = $5
+    `, [account.name, account.email, account.document, account.password, account.accountId])
   }
 
   async getById(accountId: string): Promise<any> {
@@ -28,6 +37,11 @@ export class AccountDAOMemory implements AccountDAO {
   async save(account: any): Promise<void> {
     this.accounts.push(account);
   }
+
+  update(account: any): Promise<void> {
+    throw new Error("Method not implemented.");
+  }
+
   async getById(accountId: string): Promise<any> {
     return this.accounts.find(account => account.accountId === accountId);
   }

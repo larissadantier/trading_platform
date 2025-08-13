@@ -1,11 +1,11 @@
-import pg from 'pg-promise';
-import { inject } from './Registry';
-import DatabaseConnection from './DatabaseConnection';
+import { inject } from '../di/Registry';
+import DatabaseConnection from '../database/DatabaseConnection';
 
 export default interface AccountAssetDAO {
   save(accountAsset: any): Promise<void>;
   update(accountAsset: any): Promise<void>;
-  getAccountById(accountId: string): Promise<void>;
+  deleteByAccountId(accountId: string): Promise<void>;
+  getAccountById(accountId: string): Promise<any>;
 }
 
 export class AccountAssetDAODatabase implements AccountAssetDAO {
@@ -33,5 +33,12 @@ export class AccountAssetDAODatabase implements AccountAssetDAO {
     `, [accountId])
 
     return accountAssets;
+  }
+
+  async deleteByAccountId(accountId: string): Promise<void> {
+    await this.connection.query(`
+      DELETE FROM ccca.account_asset 
+      WHERE account_id = $1
+    `, [accountId])
   }
 }

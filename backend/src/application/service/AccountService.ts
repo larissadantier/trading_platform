@@ -1,11 +1,11 @@
 import {randomUUID} from 'node:crypto';
-import { validateName } from './validateName';
-import { validateEmail } from './validateEmail';
-import { validateCpf } from './validateCpf';
-import { validatePassword } from './validatePassword';
-import AccountDAO from './AccountDAO';
-import AccountAssetDAO from './AccountAssetDAO';
-import { inject } from './Registry';
+import { validateName } from '../../domain/validateName';
+import { validateEmail } from '../../domain/validateEmail';
+import { validateCpf } from '../../domain/validateCpf';
+import { validatePassword } from '../../domain/validatePassword';
+import AccountDAO from '../../infra/dao/AccountDAO';
+import AccountAssetDAO from '../../infra/dao/AccountAssetDAO';
+import { inject } from '../../infra/di/Registry';
 
 export default class AccountService  {
   @inject("accountDAO")

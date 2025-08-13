@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { AccountDAODatabase } from '../src/AccountDAO';
-import { PgPromiseAdapter } from '../src/DatabaseConnection';
-import Registry from '../src/Registry';
+import { AccountDAODatabase } from '../../src/infra/dao/AccountDAO';
+import { PgPromiseAdapter } from '../../src/infra/database/DatabaseConnection';
+import Registry from '../../src/infra/di/Registry';
 
 let connection = new PgPromiseAdapter();
 

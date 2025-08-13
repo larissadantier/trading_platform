@@ -1,12 +1,13 @@
-import { AccountDAODatabase } from './AccountDAO';
-import { AccountAssetDAODatabase } from './AccountAssetDAO';
-import Registry from './Registry';
-import { ExpressAdapter } from './HttpServer';
-import { PgPromiseAdapter } from './DatabaseConnection';
-import AccountController from './AccountController';
-import Signup from './Signup';
-import GetAccount from './GetAccount';
-import Deposit from './Deposit';
+import { AccountDAODatabase } from './infra/dao/AccountDAO';
+import { AccountAssetDAODatabase } from './infra/dao/AccountAssetDAO';
+import Registry from './infra/di/Registry';
+import { ExpressAdapter } from './infra/http/HttpServer';
+import { PgPromiseAdapter } from './infra/database/DatabaseConnection';
+import AccountController from './infra/controller/AccountController';
+import Signup from './application/usecase/Signup';
+import GetAccount from './application/usecase/GetAccount';
+import Deposit from './application/usecase/Deposit';
+import { AccountRepositoryDatabase } from './infra/repository/AccountRepository';
 
 // Entrypoint
 async function main() {
@@ -19,6 +20,7 @@ Registry.getInstance().provide('httpServer', httpServer);
 Registry.getInstance().provide("signup", new Signup());
 Registry.getInstance().provide("getAccount", new GetAccount());
 Registry.getInstance().provide("deposit", new Deposit());
+Registry.getInstance().provide("accountRepository", new AccountRepositoryDatabase());
 
 new AccountController(); 
 

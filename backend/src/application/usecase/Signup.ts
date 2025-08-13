@@ -1,15 +1,15 @@
-import AccountDAO from "./AccountDAO";
-import { inject } from "./Registry";
-import Account from './Account';
+import { inject } from "../../infra/di/Registry";
+import Account from '../../domain/Account';
+import AccountRepository from "../../infra/repository/AccountRepository";
 
 // Use Case
 export default class Signup { 
-  @inject("accountDAO")
-  accountDAO!: AccountDAO;
+  @inject('accountRepository')
+  accountRepository!: AccountRepository;
 
   async execute(input: Input): Promise<Output> {
     const account = Account.create(input.name, input.email, input.document, input.password);
-    await this.accountDAO.save(account);
+    await this.accountRepository.save(account);
   
     return {
       accountId: account.accountId

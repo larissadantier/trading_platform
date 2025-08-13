@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto';
-import DatabaseConnection, { PgPromiseAdapter } from '../src/DatabaseConnection';
-import { AccountAssetDAODatabase } from "../src/AccountAssetDAO";
-import { AccountDAODatabase } from "../src/AccountDAO";
-import Registry from "../src/Registry";
-import Signup from '../src/Signup';
-import GetAccount from '../src/GetAccount';
-import Deposit from '../src/Deposit';
-import Withdraw from '../src/Withdraw';
+import DatabaseConnection, { PgPromiseAdapter } from '../../src/infra/database/DatabaseConnection';
+import { AccountAssetDAODatabase } from "../../src/infra/dao/AccountAssetDAO";
+import { AccountDAODatabase } from "../../src/infra/dao/AccountDAO";
+import Registry from "../../src/infra/di/Registry";
+import Signup from '../../src/application/usecase/Signup';
+import GetAccount from '../../src/application/usecase/GetAccount';
+import Deposit from '../../src/application/usecase/Deposit';
+import Withdraw from '../../src/application/usecase/Withdraw';
+import { AccountRepositoryDatabase } from '../../src/infra/repository/AccountRepository';
 
 let connection: DatabaseConnection;
 let signup: Signup;
@@ -24,6 +25,7 @@ beforeEach(() => {
   Registry.getInstance().provide("databaseConnection", connection);
   Registry.getInstance().provide("accountDAO", new AccountDAODatabase());
   Registry.getInstance().provide("accountAssetDAO", new AccountAssetDAODatabase());
+  Registry.getInstance().provide("accountRepository", new AccountRepositoryDatabase());
   // const accountDAO = new AccountDAOMemory();
 })
 
@@ -44,8 +46,8 @@ test('should be deposit in an account', async () => {
   }
   await deposit.execute(inputDeposit);
   const outputAccount = await getAccount.execute(outputSignup.accountId);
-  expect(outputAccount.balances[0].asset_id).toBe("USD");
-  expect(outputAccount.balances[0].quantity).toBe("1000");
+  expect(outputAccount.balances[0].assetId).toBe("USD");
+  expect(outputAccount.balances[0].quantity).toBe(1000);
 })
 
 test('should be not deposit in an account that not exists', async () => { 
@@ -84,8 +86,8 @@ test('should be withdraw of an account', async () => {
 
   await withdraw.execute(inputWithdraw);
   const outputAccount = await getAccount.execute(outputSignup.accountId);
-  expect(outputAccount.balances[0].asset_id).toBe("USD");
-  expect(outputAccount.balances[0].quantity).toBe("500");
+  expect(outputAccount.balances[0].assetId).toBe("USD");
+  expect(outputAccount.balances[0].quantity).toBe(500);
 })
 
 test('should be not withdraw if not has balance enough', async () => { 
