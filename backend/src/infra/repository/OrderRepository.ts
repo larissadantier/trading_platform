@@ -22,6 +22,8 @@ export default interface OrderRepository {
     const [orderData] = await this.connection.query(`
       SELECT * FROM ccca.order WHERE order_id = $1`, [orderId]);
 
-    return orderData;
+    if(!orderData) throw new Error('Order not found')
+
+      return new Order(orderData.order_id, orderData.account_id, orderData.market_id, orderData.side, parseFloat(orderData.quantity), parseFloat(orderData.price), parseFloat(orderData.fill_quantity),parseFloat(orderData.fill_price), orderData.status, orderData.timestamp);
    }
  };

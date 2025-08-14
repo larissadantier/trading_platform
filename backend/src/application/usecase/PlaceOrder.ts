@@ -14,9 +14,9 @@ export default class PlaceOrder {
     const order = Order.create(
       input.accountId, 
       input.marketId, 
-      input.price, 
+      input.side,
       input.quantity, 
-      input.side
+      input.price, 
     )
 
     await this.orderRepository.save(order);
