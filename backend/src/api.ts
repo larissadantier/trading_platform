@@ -8,6 +8,7 @@ import Signup from './application/usecase/Signup';
 import GetAccount from './application/usecase/GetAccount';
 import Deposit from './application/usecase/Deposit';
 import { AccountRepositoryDatabase } from './infra/repository/AccountRepository';
+import { OrderRepositoryDatabase } from './infra/repository/OrderRepository';
 
 // Entrypoint
 async function main() {
@@ -21,6 +22,7 @@ Registry.getInstance().provide("signup", new Signup());
 Registry.getInstance().provide("getAccount", new GetAccount());
 Registry.getInstance().provide("deposit", new Deposit());
 Registry.getInstance().provide("accountRepository", new AccountRepositoryDatabase());
+Registry.getInstance().provide("orderRepository", new OrderRepositoryDatabase());
 
 new AccountController(); 
 

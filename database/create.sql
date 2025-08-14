@@ -14,7 +14,7 @@ CREATE TABLE ccca.account_asset (
   asset_id TEXT,
   quantity NUMERIC,
   PRIMARY KEY (account_id, asset_id)
-)
+);
 
 CREATE TABLE ccca.order (
 	order_id UUID,
