@@ -17,6 +17,7 @@ type Output = {
   name: string;
   email: string;
   document: string;
+  password: string,
   balances: {  
     assetId: string;
     quantity: number

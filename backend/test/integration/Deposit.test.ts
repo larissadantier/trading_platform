@@ -6,21 +6,18 @@ import Registry from "../../src/infra/di/Registry";
 import Signup from '../../src/application/usecase/Signup';
 import GetAccount from '../../src/application/usecase/GetAccount';
 import Deposit from '../../src/application/usecase/Deposit';
-import Withdraw from '../../src/application/usecase/Withdraw';
 import { AccountRepositoryDatabase } from '../../src/infra/repository/AccountRepository';
 
 let connection: DatabaseConnection;
 let signup: Signup;
 let getAccount: GetAccount;
 let deposit: Deposit;
-let withdraw: Withdraw;
 
 beforeEach(() => { 
   connection = new PgPromiseAdapter();
   signup = new Signup();
   getAccount = new GetAccount();
   deposit = new Deposit();
-  withdraw = new Withdraw();
 
   Registry.getInstance().provide("databaseConnection", connection);
   Registry.getInstance().provide("accountDAO", new AccountDAODatabase());
@@ -29,7 +26,7 @@ beforeEach(() => {
   // const accountDAO = new AccountDAOMemory();
 })
 
-test('should be withdraw of an account', async () => { 
+test('should be deposit in an account', async () => { 
   const input = {
     name: "John Doe",
     email: "john@hotmail.com",
@@ -44,46 +41,20 @@ test('should be withdraw of an account', async () => {
     assetId: "USD",
     quantity: 1000,
   }
-  
   await deposit.execute(inputDeposit);
-
-  const inputWithdraw = {
-    accountId: outputSignup.accountId,
-    assetId: "USD",
-    quantity: 500,
-  }
-
-  await withdraw.execute(inputWithdraw);
   const outputAccount = await getAccount.execute(outputSignup.accountId);
   expect(outputAccount.balances[0].assetId).toBe("USD");
-  expect(outputAccount.balances[0].quantity).toBe(500);
+  expect(outputAccount.balances[0].quantity).toBe(1000);
 })
 
-test('should be not withdraw if not has balance enough', async () => { 
-  const input = {
-    name: "John Doe",
-    email: "john@hotmail.com",
-    document: "87748248800",
-    password: "asdQWE123"
-  };
-
-  const outputSignup = await signup.execute(input);
-
+test('should be not deposit in an account that not exists', async () => { 
   const inputDeposit = {
-    accountId: outputSignup.accountId,
-    assetId: "USD",
-    quantity: 500,
-  }
-  
-  await deposit.execute(inputDeposit);
-
-  const inputWithdraw = {
-    accountId: outputSignup.accountId,
+    accountId: randomUUID(),
     assetId: "USD",
     quantity: 1000,
   }
-
-  await expect(() => withdraw.execute(inputWithdraw)).rejects.toThrow(new Error("Insufficient funds"));
+  
+  await expect(() => deposit.execute(inputDeposit)).rejects.toThrow(new Error("Account not found"));
 })
 
 afterEach(async () => { 

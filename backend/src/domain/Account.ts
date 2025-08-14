@@ -36,7 +36,7 @@ export default class Account {
 
   withdraw(assetId: string, quantity: number) { 
     const balance = this.balances.find((balance: Balance) => balance.assetId === assetId);
-    if (!balance || balance.quantity < quantity) throw new Error('Insuficient funds');
+    if (!balance || balance.quantity < quantity) throw new Error('Insufficient funds');
     balance.quantity -= quantity;
   }
 }
