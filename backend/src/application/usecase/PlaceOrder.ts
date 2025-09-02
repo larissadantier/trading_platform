@@ -1,26 +1,23 @@
 import Order from "../../domain/Order";
 import { inject } from "../../infra/di/Registry";
-import AccountRepository from "../../infra/repository/AccountRepository";
+import Mediator from "../../infra/mediator/mediator";
 import OrderRepository from "../../infra/repository/OrderRepository";
 
 export default class PlaceOrder {
-  @inject('accountRepository')
-  accountRepository!: AccountRepository;
   @inject('orderRepository')
   orderRepository!: OrderRepository;
+  @inject("mediator")
+  mediator!: Mediator;
 
   async execute(input: Input): Promise<{orderId: string}> { 
-    const account = await this.accountRepository.getById(input.accountId);
-    const order = Order.create(
-      input.accountId, 
-      input.marketId, 
-      input.side,
-      input.quantity, 
-      input.price, 
-    )
-
+    // TODO: Implementar a verficação saldo
+    const order = Order.create(input.accountId, input.marketId, input.side,input.quantity, input.price);
     await this.orderRepository.save(order);
-    
+
+    await this.mediator.notifyAll('orderPlaced', {
+      marketId: input.marketId,
+      orderId: order.orderId
+    })
     return {
       orderId: order.orderId,
     };

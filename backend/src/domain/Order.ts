@@ -25,4 +25,16 @@ export default class Order {
 
     return new Order(orderId, accountId, marketId, side, quantity, price, fillQuantity, fillPrice, status, timestamp);
   }
+
+  getAvailableQuantity() { 
+    return this.quantity - this.fillQuantity;
+  }
+
+  fill(quantity: number, price: number) { 
+    this.fillPrice = ((this.fillQuantity * this.fillPrice) + (quantity * price)) / (this.fillQuantity + quantity);
+    this.fillQuantity += quantity;
+    if(this.getAvailableQuantity() === 0) {
+      this.status = "closed";
+    }
+  }
  }
